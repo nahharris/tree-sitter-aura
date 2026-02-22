@@ -5,7 +5,7 @@
   "main": "bindings/node",
   "types": "bindings/node",
   "keywords": ["parser", "tree-sitter", "aura"],
-  "author": "nahharris",
+  "author": "Hannah Harrisonn",
   "license": "MIT",
   "repository": {
     "type": "git",
