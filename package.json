@@ -4,7 +4,11 @@
   "description": "Tree-sitter grammar for Aura",
   "main": "bindings/node",
   "types": "bindings/node",
-  "keywords": ["parser", "tree-sitter", "aura"],
+  "keywords": [
+    "parser",
+    "tree-sitter",
+    "aura"
+  ],
   "author": "Hannah Harrisonn",
   "license": "MIT",
   "repository": {
@@ -20,7 +24,9 @@
   "tree-sitter": [
     {
       "scope": "source.aura",
-      "file-types": ["aura"],
+      "file-types": [
+        "aura"
+      ],
       "highlights": [
         "queries/highlights.scm"
       ],

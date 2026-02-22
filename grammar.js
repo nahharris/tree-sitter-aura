@@ -9,6 +9,12 @@ module.exports = grammar({
     $.comment,
   ],
 
+  conflicts: $ => [
+    [$.parenthesized_expression, $.tuple],
+    [$._expression, $.named_argument],
+    [$.def_decl, $.index_expression],
+  ],
+
   rules: {
     source_file: $ => repeat($._statement),
 
@@ -25,7 +31,6 @@ module.exports = grammar({
 
     comment: $ => token(seq("//", /.*/)),
 
-    // Identifiers
     identifier: $ => /[a-zA-Z_][a-zA-Z0-9_]*/,
     
     type_identifier: $ => /[A-Z][a-zA-Z0-9_]*/,
@@ -34,7 +39,6 @@ module.exports = grammar({
 
     dot_identifier: $ => seq(".", $.identifier),
 
-    // Literals
     integer: $ => /\d[\d_]*/,
     
     float: $ => /\d[\d_]*\.\d[\d_]*/,
@@ -59,7 +63,6 @@ module.exports = grammar({
     
     interpolation: $ => seq("$(", $._expression, ")"),
 
-    // Type expressions
     type_expr: $ => choice(
       $.type_identifier,
       $.tuple_type,
@@ -67,51 +70,38 @@ module.exports = grammar({
       $.union_type,
       $.enum_type,
       $.interface_type,
-      $.type_parameterized,
       $.func_type,
     ),
 
-    type_parameters: $ => seq("[", commaSep($.type_expr), "]"),
-    
-    type_parameterized: $ => seq($.type_identifier, optional($.type_parameters)),
-
     tuple_type: $ => seq("(", commaSep($.type_expr), ")"),
 
-    struct_type: $ => seq("(", commaSep($.struct_field_type), ")"),
+    struct_type: $ => seq("(", commaSep1($.struct_field_type), ")"),
     
     struct_field_type: $ => seq($.identifier, ":", $.type_expr),
 
-    union_type: $ => seq("union", "(", commaSep($.type_expr), ")"),
+    union_type: $ => seq("union", "(", commaSep1($.type_expr), ")"),
 
-    enum_type: $ => seq("enum", "(", commaSep($.enum_variant_type), ")"),
+    enum_type: $ => seq("enum", "(", commaSep1($.enum_variant_type), ")"),
     
     enum_variant_type: $ => choice(
       $.identifier,
       seq($.identifier, ":", $.type_expr),
     ),
 
-    interface_type: $ => seq("interface", "(", optional(commaSep($.struct_field_type)), ")"),
+    interface_type: $ => seq("interface", "(", optional(commaSep1($.struct_field_type)), ")"),
 
-    func_type: $ => seq("Func", "[", commaSep2($.type_expr), "]"),
+    func_type: $ => seq("Func", "[", commaSep1($.type_expr), "]"),
 
-    // Declarations
-    let_decl: $ => seq("let", $.binding, optional(seq(":", $.type_expr)), "=", $._expression),
+    let_decl: $ => seq("let", $.identifier, optional(seq(":", $.type_expr)), "=", $._expression, ";"),
     
-    const_decl: $ => seq("const", $.binding, optional(seq(":", $.type_expr)), "=", $._expression),
-
-    binding: $ => choice(
-      $.identifier,
-      $.tuple_pattern,
-      $.struct_pattern,
-      $.variant_pattern,
-    ),
+    const_decl: $ => seq("const", $.identifier, optional(seq(":", $.type_expr)), "=", $._expression, ";"),
 
     fn_decl: $ => seq(
       "defn",
       optional(seq($.type_identifier, ".")),
       $.identifier,
-      optional($.type_parameters),
-      optional($.parameters),
+      optional(seq("[", commaSep1($.type_identifier), "]")),
+      $.parameters,
       optional(seq("->", $.type_expr)),
       $.block,
     ),
@@ -119,25 +109,25 @@ module.exports = grammar({
     parameters: $ => seq("(", commaSep($.parameter), ")"),
     
     parameter: $ => seq(
-      optional(seq($.identifier, $.identifier)), // external label
       $.identifier,
       optional(seq(":", $.type_expr)),
     ),
 
     def_decl: $ => seq(
       "def",
-      optional($.type_parameters),
+      optional(seq("[", commaSep1($.type_identifier), "]")),
       $.identifier,
       optional(seq(":", $.type_expr)),
       "=",
-      choice($.type_expr, $._expression),
+      $._expression,
+      ";",
     ),
 
     macro_decl: $ => seq(
       "defmacro",
       $.identifier,
-      optional($.type_parameters),
-      optional($.parameters),
+      optional(seq("[", commaSep1($.type_identifier), "]")),
+      $.parameters,
       optional(seq("->", $.type_expr)),
       $.block,
     ),
@@ -146,10 +136,11 @@ module.exports = grammar({
       "use",
       choice(
         $.identifier,
-        seq("(", commaSep($.use_field), ")"),
+        seq("(", commaSep1($.use_field), ")"),
       ),
       "=",
       $.string,
+      ";",
     ),
 
     use_field: $ => choice(
@@ -159,7 +150,6 @@ module.exports = grammar({
 
     pub_modifier: $ => seq("pub", $._statement),
 
-    // Expressions
     expression_statement: $ => seq($._expression, ";"),
 
     _expression: $ => choice(
@@ -170,21 +160,16 @@ module.exports = grammar({
       $.null,
       $.string,
       $.list,
-      $.dict,
       $.tuple,
-      $.struct,
-      $.closure,
       $.call_expression,
       $.field_access,
       $.safe_access,
       $.index_expression,
       $.binary_expression,
       $.unary_expression,
-      $.range_expression,
       $.cast_expression,
       $.elvis_expression,
       $.force_unwrap,
-      $.postfix_expression,
       $.atom,
       $.dot_identifier,
       $.block,
@@ -193,89 +178,22 @@ module.exports = grammar({
 
     parenthesized_expression: $ => seq("(", $._expression, ")"),
 
-    list: $ => seq("[", commaSep($.list_item), "]"),
-    
-    list_item: $ => seq(repeat($._statement), $._expression),
+    list: $ => seq("[", commaSep($._expression), "]"),
 
-    dict: $ => seq("[", commaSep($.dict_entry), "]"),
-    
-    dict_entry: $ => seq(choice($.identifier, $._expression), "=", $._expression),
+    tuple: $ => seq("(", commaSep1($._expression), ")"),
 
-    tuple: $ => seq("(", commaSep($._expression), ")"),
-
-    struct: $ => seq("(", commaSep($.struct_field), ")"),
-    
-    struct_field: $ => seq($.identifier, "=", $._expression),
-
-    closure: $ => seq(
+    block: $ => seq(
       "{",
-      choice(
-        seq(optional($.closure_params), optional(seq("->", $.type_expr)), repeat($._statement), optional($._expression)),
-        commaSep($.closure_arm),
-      ),
+      repeat($._statement),
+      optional($._expression),
       "}",
     ),
 
-    closure_params: $ => commaSep($.closure_param),
-    
-    closure_param: $ => choice(
-      $.identifier,
-      seq($.identifier, ":", $.type_expr),
-    ),
-
-    closure_arm: $ => seq(
-      commaSep($.pattern),
-      optional($.guard),
-      "->",
-      $._expression,
-    ),
-
-    guard: $ => seq("~", $._expression),
-
-    pattern: $ => choice(
-      $.identifier,
-      "_",
-      $.literal_pattern,
-      $.type_check_pattern,
-      $.struct_pattern,
-      $.constructor_pattern,
-      $.rest_pattern,
-      $.variant_pattern,
-      $.tuple_pattern,
-    ),
-
-    literal_pattern: $ => choice($.integer, $.float, $.boolean, $.null, $.string),
-    
-    type_check_pattern: $ => seq($.identifier, ":", $.type_expr),
-
-    struct_pattern: $ => seq(
-      optional($.type_identifier),
-      "(",
-      commaSep(choice(
-        $.identifier,
-        seq($.identifier, "=", $.identifier),
-      )),
-      optional($.rest_pattern),
-      ")",
-    ),
-
-    constructor_pattern: $ => seq(
-      $.type_identifier,
-      "(",
-      commaSep($.pattern),
-      ")",
-    ),
-
-    rest_pattern: $ => seq("..", optional($.identifier)),
-
-    variant_pattern: $ => seq(".", $.identifier, optional(seq("(", $.pattern, ")"))),
-
-    tuple_pattern: $ => seq("(", commaSep($.pattern), ")"),
-
     call_expression: $ => seq(
-      choice($.identifier, $.field_access, $.safe_access),
-      optional(seq("(", commaSep($.argument), ")")),
-      repeat($.trailing_closure),
+      $._expression,
+      "(",
+      commaSep($.argument),
+      ")",
     ),
 
     argument: $ => choice(
@@ -284,8 +202,6 @@ module.exports = grammar({
     ),
 
     named_argument: $ => seq($.identifier, "=", $._expression),
-
-    trailing_closure: $ => seq(optional(seq($.identifier, optional($.atom))), $.closure),
 
     field_access: $ => seq($._expression, ".", $.identifier),
 
@@ -301,24 +217,16 @@ module.exports = grammar({
       prec.left(5, seq($._expression, choice("+", "-"), $._expression)),
       prec.left(6, seq($._expression, choice("*", "/", "%"), $._expression)),
       prec.right(7, seq($._expression, "=", $._expression)),
+      prec.left(8, seq($._expression, "..", $._expression)),
     ),
 
-    unary_expression: $ => prec(8, seq(choice("!", "-"), $._expression)),
+    unary_expression: $ => prec(9, seq(choice("!", "-"), $._expression)),
 
-    range_expression: $ => seq($._expression, "..", $._expression),
+    cast_expression: $ => prec.left(10, seq($._expression, ":", $.type_expr)),
 
-    cast_expression: $ => prec.left(9, seq($._expression, ":", $.type_expr)),
-
-    elvis_expression: $ => prec.left(10, seq($._expression, "?:", $._expression)),
+    elvis_expression: $ => prec.left(11, seq($._expression, "?:", $._expression)),
 
     force_unwrap: $ => seq($._expression, "!!"),
-
-    postfix_expression: $ => choice(
-      seq($._expression, "++"),
-      seq($._expression, "--"),
-    ),
-
-    block: $ => seq("{", repeat($._statement), optional($._expression), "}"),
   },
 });
 
@@ -326,6 +234,6 @@ function commaSep(rule) {
   return optional(seq(rule, repeat(seq(",", rule)), optional(",")));
 }
 
-function commaSep2(rule) {
+function commaSep1(rule) {
   return seq(rule, repeat(seq(",", rule)), optional(","));
 }
