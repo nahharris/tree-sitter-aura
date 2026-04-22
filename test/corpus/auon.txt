@@ -1,0 +1,136 @@
+==================
+Root struct omission
+==================
+
+name = "demo",
+version = "0.1.0",
+kind = .binary,
+dependencies = []
+
+---
+
+(source_file
+  (auon_document
+    (root_struct
+      (struct_field
+        name: (identifier)
+        value: (string)
+        value: (string
+          (string_content))
+        value: (string))
+      (struct_field
+        name: (identifier)
+        value: (string)
+        value: (string
+          (string_content))
+        value: (string))
+      (struct_field
+        name: (identifier)
+        value: (dot_identifier
+          name: (identifier)))
+      (struct_field
+        name: (identifier)
+        value: (list_expression)))))
+
+==================
+Wrapped values
+==================
+
+["name" = "Aura", "stable" = true,]
+
+---
+
+(source_file
+  (auon_document
+    (dict_expression
+      (dict_entry
+        key: (string
+          (string_content))
+        value: (string)
+        value: (string
+          (string_content))
+        value: (string))
+      (dict_entry
+        key: (string
+          (string_content))
+        value: (alias_value)))))
+
+==================
+Variant payload
+==================
+
+.some((name = "Aura"))
+
+---
+
+(source_file
+  (auon_document
+    (dot_identifier
+      name: (identifier)
+      payload: (struct_expression
+        (struct_field
+          name: (identifier)
+          value: (string)
+          value: (string
+            (string_content))
+          value: (string))))))
+
+==================
+Invalid semicolon
+==================
+
+name = "demo";
+
+---
+
+(source_file
+  (auon_document
+    (root_struct
+      (struct_field
+        (identifier)
+        (string)
+        (string
+          (string_content))
+        (string))))
+  (ERROR))
+
+==================
+Invalid call
+==================
+
+foo(1)
+
+---
+
+(ERROR
+  (call_expression
+    (identifier)
+    (arguments
+      (integer))))
+
+==================
+Invalid interpolation
+==================
+
+"$(name)"
+
+---
+
+(ERROR
+  (string
+    (interpolation
+      (identifier))))
+
+==================
+Invalid type annotation
+==================
+
+1: Int
+
+---
+
+(ERROR
+  (cast_expression
+    (integer)
+    (named_type
+      (identifier))))

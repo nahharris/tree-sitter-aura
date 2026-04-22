@@ -25,7 +25,8 @@
     {
       "scope": "source.aura",
       "file-types": [
-        "aura"
+        "aura",
+        "auon"
       ],
       "highlights": [
         "queries/highlights.scm"

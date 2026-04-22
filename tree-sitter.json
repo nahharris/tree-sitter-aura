@@ -5,13 +5,17 @@
       "camelcase": "Aura",
       "scope": "source.aura",
       "path": ".",
-      "file-types": ["aura"]
+      "file-types": ["aura", "auon"]
     }
   ],
   "metadata": {
     "version": "0.1.0",
     "license": "MIT",
-    "authors": ["Hannah Harrisonn"],
+    "authors": [
+      {
+        "name": "Hannah Harrisonn"
+      }
+    ],
     "description": "Tree-sitter grammar for the Aura programming language",
     "links": {
       "repository": "https://github.com/nahharris/tree-sitter-aura"

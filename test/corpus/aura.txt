@@ -1,0 +1,215 @@
+==================
+Function declaration
+==================
+
+def[T] id(x: T) -> T { x }
+
+---
+
+(source_file
+  (function_declaration
+    static_parameters: (static_parameters
+      (static_parameter
+        name: (identifier)))
+    name: (identifier)
+    parameters: (parameters
+      (parameter
+        name: (identifier)
+        type: (named_type
+          name: (identifier))))
+    return_type: (named_type
+      name: (identifier))
+    body: (block_expression
+      (identifier))))
+
+==================
+Macro declaration
+==================
+
+defmacro[T, n: static Int] m(node: Expr[T]) -> Expr[T] { node }
+
+---
+
+(source_file
+  (macro_declaration
+    static_parameters: (static_parameters
+      (static_parameter
+        name: (identifier))
+      (static_parameter
+        name: (identifier)
+        constraint: (static_type
+          (named_type
+            name: (identifier)))))
+    name: (identifier)
+    parameters: (parameters
+      (parameter
+        name: (identifier)
+        type: (named_type
+          name: (identifier)
+          static_arguments: (static_arguments
+            (type_static_argument
+              (named_type
+                name: (identifier)))))))
+    return_type: (named_type
+      name: (identifier)
+      static_arguments: (static_arguments
+        (type_static_argument
+          (named_type
+            name: (identifier)))))
+    body: (block_expression
+      (identifier))))
+
+==================
+Assignment declaration with doc
+==================
+
+doc["# answer"] def answer = 42
+
+---
+
+(source_file
+  (assignment_declaration
+    doc: (doc_attribute
+      (static_arguments
+        (value_static_argument
+          (string
+            (string_content)))))
+    name: (identifier)
+    value: (integer)))
+
+==================
+Use declaration
+==================
+
+use (my_print = print, read) = "@stl/io"
+
+---
+
+(source_file
+  (use_declaration
+    binding: (use_fields
+      (use_field
+        local: (identifier)
+        source: (identifier))
+      (use_field
+        source: (identifier)))
+    source: (string
+      (string_content))))
+
+==================
+Macro application
+==================
+
+def value = macro_name[T, 4] node
+
+---
+
+(source_file
+  (assignment_declaration
+    name: (identifier)
+    value: (macro_apply_expression
+      name: (identifier)
+      static_arguments: (static_arguments
+        (type_static_argument
+          (named_type
+            name: (identifier)))
+        (value_static_argument
+          (integer)))
+      operand: (identifier))))
+
+==================
+Call with labeled trailing closures
+==================
+
+def main() -> String {
+    if (ok) then { "yes" } else { "no" }
+}
+
+---
+
+(source_file
+  (function_declaration
+    name: (identifier)
+    parameters: (parameters)
+    return_type: (named_type
+      name: (identifier))
+    body: (block_expression
+      (call_expression
+        callee: (call_expression
+          callee: (call_expression
+            callee: (identifier)
+            arguments: (arguments
+              (identifier)))
+          (labeled_closure_argument
+            label: (identifier)
+            body: (block_expression
+              (string
+                (string_content)))))
+        (labeled_closure_argument
+          label: (identifier)
+          body: (block_expression
+            (string
+              (string_content))))))))
+
+==================
+Label expression and multi arm
+==================
+
+def decision = label[.worker] { ok -> .ok, _ -> .err("bad") }
+
+---
+
+(source_file
+  (assignment_declaration
+    name: (identifier)
+    value: (label_expression
+      (dot_identifier
+        name: (identifier))
+      (multi_arm_expression
+        (arm
+          (identifier)
+          body: (dot_identifier
+            name: (identifier)))
+        (arm
+          (wildcard_pattern)
+          body: (dot_identifier
+            name: (identifier)
+            payload: (string)
+            payload: (string
+              (string_content))
+            payload: (string)))))))
+
+==================
+Collections and comments
+==================
+
+def data = [
+  /* block */
+  (name = "Aura", enabled = true),
+  ["x" = .ok('a')],
+]
+
+---
+
+(source_file
+  (assignment_declaration
+    name: (identifier)
+    value: (list_expression
+      (comment)
+      (struct_expression
+        (struct_field
+          name: (identifier)
+          value: (string)
+          value: (string
+            (string_content))
+          value: (string))
+        (struct_field
+          name: (identifier)
+          value: (alias_value)))
+      (dict_expression
+        (dict_entry
+          key: (string
+            (string_content))
+          value: (dot_identifier
+            name: (identifier)
+            payload: (char)))))))
