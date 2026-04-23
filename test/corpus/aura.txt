@@ -1,10 +1,10 @@
-==================
+================================================================================
 Function declaration
-==================
+================================================================================
 
 def[T] id(x: T) -> T { x }
 
----
+--------------------------------------------------------------------------------
 
 (source_file
   (function_declaration
@@ -22,13 +22,13 @@ def[T] id(x: T) -> T { x }
     body: (block_expression
       (identifier))))
 
-==================
+================================================================================
 Macro declaration
-==================
+================================================================================
 
 defmacro[T, n: static Int] m(node: Expr[T]) -> Expr[T] { node }
 
----
+--------------------------------------------------------------------------------
 
 (source_file
   (macro_declaration
@@ -59,13 +59,13 @@ defmacro[T, n: static Int] m(node: Expr[T]) -> Expr[T] { node }
     body: (block_expression
       (identifier))))
 
-==================
+================================================================================
 Assignment declaration with doc
-==================
+================================================================================
 
 doc["# answer"] def answer = 42
 
----
+--------------------------------------------------------------------------------
 
 (source_file
   (assignment_declaration
@@ -77,13 +77,13 @@ doc["# answer"] def answer = 42
     name: (identifier)
     value: (integer)))
 
-==================
+================================================================================
 Use declaration
-==================
+================================================================================
 
 use (my_print = print, read) = "@stl/io"
 
----
+--------------------------------------------------------------------------------
 
 (source_file
   (use_declaration
@@ -96,13 +96,13 @@ use (my_print = print, read) = "@stl/io"
     source: (string
       (string_content))))
 
-==================
+================================================================================
 Macro application
-==================
+================================================================================
 
 def value = macro_name[T, 4] node
 
----
+--------------------------------------------------------------------------------
 
 (source_file
   (assignment_declaration
@@ -117,15 +117,15 @@ def value = macro_name[T, 4] node
           (integer)))
       operand: (identifier))))
 
-==================
+================================================================================
 Call with labeled trailing closures
-==================
+================================================================================
 
 def main() -> String {
     if (ok) then { "yes" } else { "no" }
 }
 
----
+--------------------------------------------------------------------------------
 
 (source_file
   (function_declaration
@@ -151,13 +151,13 @@ def main() -> String {
             (string
               (string_content))))))))
 
-==================
+================================================================================
 Label expression and multi arm
-==================
+================================================================================
 
 def decision = label[.worker] { ok -> .ok, _ -> .err("bad") }
 
----
+--------------------------------------------------------------------------------
 
 (source_file
   (assignment_declaration
@@ -179,9 +179,98 @@ def decision = label[.worker] { ok -> .ok, _ -> .err("bad") }
               (string_content))
             payload: (string)))))))
 
-==================
+================================================================================
+Variant struct payload sugar
+================================================================================
+
+def value = .err(message = "oops", code = 500)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (assignment_declaration
+    name: (identifier)
+    value: (dot_identifier
+      name: (identifier)
+      payload: (variant_struct_expression
+        (struct_field
+          name: (identifier)
+          value: (string)
+          value: (string
+            (string_content))
+          value: (string))
+        (struct_field
+          name: (identifier)
+          value: (integer))))))
+
+================================================================================
+Named constructor call
+================================================================================
+
+def named = HttpError.err(message = "oops", code = 500)
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (assignment_declaration
+    name: (identifier)
+    value: (call_expression
+      callee: (member_expression
+        object: (identifier)
+        field: (identifier))
+      arguments: (arguments
+        (assignment_expression
+          left: (identifier)
+          right: (string
+            (string_content)))
+        (assignment_expression
+          left: (identifier)
+          right: (integer))))))
+
+================================================================================
+Variant struct payload patterns
+================================================================================
+
+def decision = label[.worker] {
+  .err(message = msg, code = status) -> msg,
+  .err((message = other, code = _)) -> other,
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (assignment_declaration
+    name: (identifier)
+    value: (label_expression
+      (dot_identifier
+        name: (identifier))
+      (multi_arm_expression
+        (arm
+          (dot_pattern
+            name: (identifier)
+            payload: (variant_struct_pattern
+              (struct_pattern_field
+                name: (identifier)
+                value: (identifier))
+              (struct_pattern_field
+                name: (identifier)
+                value: (identifier))))
+          body: (identifier))
+        (arm
+          (dot_pattern
+            name: (identifier)
+            payload: (struct_pattern
+              (struct_pattern_field
+                name: (identifier)
+                value: (identifier))
+              (struct_pattern_field
+                name: (identifier)
+                value: (wildcard_pattern))))
+          body: (identifier))))))
+
+================================================================================
 Collections and comments
-==================
+================================================================================
 
 def data = [
   /* block */
@@ -189,7 +278,7 @@ def data = [
   ["x" = .ok('a')],
 ]
 
----
+--------------------------------------------------------------------------------
 
 (source_file
   (assignment_declaration

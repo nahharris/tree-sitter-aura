@@ -37,10 +37,16 @@
 (dot_identifier
   name: (identifier) @constructor)
 
+(auon_dot_identifier
+  name: (identifier) @constructor)
+
 (dot_pattern
   name: (identifier) @constructor)
 
 (struct_field
+  name: (identifier) @property)
+
+(struct_pattern_field
   name: (identifier) @property)
 
 (use_field

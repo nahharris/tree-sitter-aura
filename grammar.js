@@ -39,6 +39,7 @@ module.exports = grammar({
     [$.tuple_type, $.struct_type],
     [$.list_expression, $.dict_expression],
     [$.call_expression, $.macro_apply_expression],
+    [$.member_expression, $.macro_apply_expression],
     [$._primary_expression, $.auon_dict_key],
     [$._primary_expression, $._auon_value],
     [$.named_type, $._primary_expression],
@@ -53,7 +54,9 @@ module.exports = grammar({
     [$.placeholder, $.wildcard_pattern],
     [$.string, $._plain_string],
     [$.dot_identifier],
+    [$.dot_identifier, $.auon_dot_identifier],
     [$.dot_pattern, $.dot_identifier],
+    [$.dot_pattern, $.dot_identifier, $.auon_dot_identifier],
     [$.root_list, $.root_struct, $.root_dict],
   ],
 
@@ -272,6 +275,26 @@ module.exports = grammar({
       field("field", $.identifier),
     )),
 
+    _callable_expression: $ => choice(
+      $.identifier,
+      $.integer,
+      $.float,
+      $.string,
+      $.char,
+      $.alias_value,
+      $.tuple_expression,
+      $.struct_expression,
+      $.list_expression,
+      $.dict_expression,
+      $.block_expression,
+      $.multi_arm_expression,
+      $.label_expression,
+      $.parenthesized_expression,
+      $.placeholder,
+      $.member_expression,
+      $.call_expression,
+    ),
+
     arguments: $ => seq("(", commaSep($._expression), ")"),
 
     labeled_closure_argument: $ => seq(
@@ -280,7 +303,7 @@ module.exports = grammar({
     ),
 
     call_expression: $ => prec.left(PREC.CALL, seq(
-      field("callee", choice($._primary_expression, $.member_expression, $.call_expression)),
+      field("callee", $._callable_expression),
       optional(field("static_arguments", $.static_arguments)),
       choice(
         field("arguments", $.arguments),
@@ -305,7 +328,6 @@ module.exports = grammar({
       $.string,
       $.char,
       $.alias_value,
-      $.dot_identifier,
       $.list_expression,
       $.dict_expression,
       $.block_expression,
@@ -365,18 +387,37 @@ module.exports = grammar({
       $.wildcard_pattern,
       $.identifier,
       $.dot_pattern,
+      $.struct_pattern,
     ),
 
-    dot_pattern: $ => seq(
+    dot_pattern: $ => prec(PREC.CALL + 1, seq(
       ".",
       field("name", $.identifier),
-      optional(seq("(", field("payload", $._pattern), ")")),
+      optional(seq("(", field("payload", choice($.variant_struct_pattern, $._pattern)), ")")),
+    )),
+
+    dot_identifier: $ => prec(PREC.CALL + 1, seq(
+      ".",
+      field("name", $.identifier),
+      optional(seq("(", field("payload", choice($.variant_struct_expression, $._expression, $._auon_value)), ")")),
+    )),
+
+    variant_struct_expression: $ => commaSep1($.struct_field),
+
+    struct_pattern: $ => seq("(", commaSep1($.struct_pattern_field), ")"),
+
+    variant_struct_pattern: $ => commaSep1($.struct_pattern_field),
+
+    struct_pattern_field: $ => seq(
+      field("name", $.identifier),
+      "=",
+      field("value", $._pattern),
     ),
 
-    dot_identifier: $ => seq(
+    auon_dot_identifier: $ => seq(
       ".",
       field("name", $.identifier),
-      optional(seq("(", field("payload", choice($._expression, $._auon_value)), ")")),
+      optional(seq("(", field("payload", $._auon_value), ")")),
     ),
 
     auon_document: $ => choice(
@@ -392,7 +433,7 @@ module.exports = grammar({
       $._plain_string,
       $.char,
       $.alias_value,
-      $.dot_identifier,
+      $.auon_dot_identifier,
       $.tuple_expression,
       $.struct_expression,
       $.list_expression,
@@ -405,7 +446,7 @@ module.exports = grammar({
       $._plain_string,
       $.char,
       $.alias_value,
-      $.dot_identifier,
+      $.auon_dot_identifier,
       $.tuple_expression,
       $.struct_expression,
       $.list_expression,

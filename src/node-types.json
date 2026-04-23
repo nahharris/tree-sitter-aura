@@ -106,6 +106,10 @@
         "named": true
       },
       {
+        "type": "struct_pattern",
+        "named": true
+      },
+      {
         "type": "wildcard_pattern",
         "named": true
       }
@@ -288,15 +292,15 @@
           "named": true
         },
         {
+          "type": "auon_dot_identifier",
+          "named": true
+        },
+        {
           "type": "char",
           "named": true
         },
         {
           "type": "dict_expression",
-          "named": true
-        },
-        {
-          "type": "dot_identifier",
           "named": true
         },
         {
@@ -339,15 +343,15 @@
           "named": true
         },
         {
+          "type": "auon_dot_identifier",
+          "named": true
+        },
+        {
           "type": "char",
           "named": true
         },
         {
           "type": "dict_expression",
-          "named": true
-        },
-        {
-          "type": "dot_identifier",
           "named": true
         },
         {
@@ -387,6 +391,68 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "auon_dot_identifier",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "payload": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "alias_value",
+            "named": true
+          },
+          {
+            "type": "auon_dot_identifier",
+            "named": true
+          },
+          {
+            "type": "char",
+            "named": true
+          },
+          {
+            "type": "dict_expression",
+            "named": true
+          },
+          {
+            "type": "float",
+            "named": true
+          },
+          {
+            "type": "integer",
+            "named": true
+          },
+          {
+            "type": "list_expression",
+            "named": true
+          },
+          {
+            "type": "string",
+            "named": true
+          },
+          {
+            "type": "struct_expression",
+            "named": true
+          },
+          {
+            "type": "tuple_expression",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -474,10 +540,6 @@
           },
           {
             "type": "dict_expression",
-            "named": true
-          },
-          {
-            "type": "dot_identifier",
             "named": true
           },
           {
@@ -671,6 +733,10 @@
           {
             "type": "_expression",
             "named": true
+          },
+          {
+            "type": "auon_dot_identifier",
+            "named": true
           }
         ]
       }
@@ -727,6 +793,14 @@
           {
             "type": "_expression",
             "named": true
+          },
+          {
+            "type": "auon_dot_identifier",
+            "named": true
+          },
+          {
+            "type": "variant_struct_expression",
+            "named": true
           }
         ]
       }
@@ -752,6 +826,10 @@
         "types": [
           {
             "type": "_pattern",
+            "named": true
+          },
+          {
+            "type": "variant_struct_pattern",
             "named": true
           }
         ]
@@ -914,6 +992,10 @@
         {
           "type": "_expression",
           "named": true
+        },
+        {
+          "type": "auon_dot_identifier",
+          "named": true
         }
       ]
     }
@@ -950,10 +1032,6 @@
           },
           {
             "type": "dict_expression",
-            "named": true
-          },
-          {
-            "type": "dot_identifier",
             "named": true
           },
           {
@@ -1278,15 +1356,15 @@
           "named": true
         },
         {
+          "type": "auon_dot_identifier",
+          "named": true
+        },
+        {
           "type": "char",
           "named": true
         },
         {
           "type": "dict_expression",
-          "named": true
-        },
-        {
-          "type": "dot_identifier",
           "named": true
         },
         {
@@ -1334,7 +1412,6 @@
   {
     "type": "source_file",
     "named": true,
-    "root": true,
     "fields": {},
     "children": {
       "multiple": true,
@@ -1496,6 +1573,51 @@
         "types": [
           {
             "type": "_expression",
+            "named": true
+          },
+          {
+            "type": "auon_dot_identifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "struct_pattern",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "struct_pattern_field",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "struct_pattern_field",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "_pattern",
             "named": true
           }
         ]
@@ -1697,6 +1819,36 @@
         },
         {
           "type": "string",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "variant_struct_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "struct_field",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "variant_struct_pattern",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "struct_pattern_field",
           "named": true
         }
       ]

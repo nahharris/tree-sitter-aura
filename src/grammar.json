@@ -2353,6 +2353,10 @@
         {
           "type": "SYMBOL",
           "name": "dot_pattern"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "struct_pattern"
         }
       ]
     },
@@ -2385,8 +2389,17 @@
                   "type": "FIELD",
                   "name": "payload",
                   "content": {
-                    "type": "SYMBOL",
-                    "name": "_pattern"
+                    "type": "CHOICE",
+                    "members": [
+                      {
+                        "type": "SYMBOL",
+                        "name": "variant_struct_pattern"
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "_pattern"
+                      }
+                    ]
                   }
                 },
                 {
@@ -2435,6 +2448,10 @@
                     "members": [
                       {
                         "type": "SYMBOL",
+                        "name": "variant_struct_expression"
+                      },
+                      {
+                        "type": "SYMBOL",
                         "name": "_expression"
                       },
                       {
@@ -2442,6 +2459,201 @@
                         "name": "_auon_value"
                       }
                     ]
+                  }
+                },
+                {
+                  "type": "STRING",
+                  "value": ")"
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "variant_struct_expression": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "struct_field"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": ","
+              },
+              {
+                "type": "SYMBOL",
+                "name": "struct_field"
+              }
+            ]
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": ","
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "struct_pattern": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "struct_pattern_field"
+            },
+            {
+              "type": "REPEAT",
+              "content": {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "STRING",
+                    "value": ","
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "struct_pattern_field"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": ","
+                },
+                {
+                  "type": "BLANK"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "STRING",
+          "value": ")"
+        }
+      ]
+    },
+    "variant_struct_pattern": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "struct_pattern_field"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": ","
+              },
+              {
+                "type": "SYMBOL",
+                "name": "struct_pattern_field"
+              }
+            ]
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": ","
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "struct_pattern_field": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          }
+        },
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "FIELD",
+          "name": "value",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_pattern"
+          }
+        }
+      ]
+    },
+    "auon_dot_identifier": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "."
+        },
+        {
+          "type": "FIELD",
+          "name": "name",
+          "content": {
+            "type": "SYMBOL",
+            "name": "identifier"
+          }
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "STRING",
+                  "value": "("
+                },
+                {
+                  "type": "FIELD",
+                  "name": "payload",
+                  "content": {
+                    "type": "SYMBOL",
+                    "name": "_auon_value"
                   }
                 },
                 {
@@ -2503,7 +2715,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "dot_identifier"
+          "name": "auon_dot_identifier"
         },
         {
           "type": "SYMBOL",
@@ -2548,7 +2760,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "dot_identifier"
+          "name": "auon_dot_identifier"
         },
         {
           "type": "SYMBOL",
@@ -2794,8 +3006,17 @@
       "dot_identifier"
     ],
     [
+      "dot_identifier",
+      "auon_dot_identifier"
+    ],
+    [
       "dot_pattern",
       "dot_identifier"
+    ],
+    [
+      "dot_pattern",
+      "dot_identifier",
+      "auon_dot_identifier"
     ],
     [
       "root_list",
@@ -2810,5 +3031,6 @@
     "_expression",
     "_type_expression",
     "_pattern"
-  ]
+  ],
+  "reserved": {}
 }
