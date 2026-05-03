@@ -81,7 +81,7 @@ doc["# answer"] def answer = 42
 Use declaration
 ================================================================================
 
-use (my_print = print, read) = "@stl/io"
+use (print = my_print, read) = "@stl/io"
 
 --------------------------------------------------------------------------------
 
@@ -89,8 +89,8 @@ use (my_print = print, read) = "@stl/io"
   (use_declaration
     binding: (use_fields
       (use_field
-        local: (identifier)
-        source: (identifier))
+        source: (identifier)
+        local: (identifier))
       (use_field
         source: (identifier)))
     source: (string

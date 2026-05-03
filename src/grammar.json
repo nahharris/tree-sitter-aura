@@ -600,7 +600,7 @@
           "members": [
             {
               "type": "FIELD",
-              "name": "local",
+              "name": "source",
               "content": {
                 "type": "SYMBOL",
                 "name": "identifier"
@@ -612,7 +612,7 @@
             },
             {
               "type": "FIELD",
-              "name": "source",
+              "name": "local",
               "content": {
                 "type": "SYMBOL",
                 "name": "identifier"

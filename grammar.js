@@ -155,9 +155,9 @@ module.exports = grammar({
 
     use_field: $ => choice(
       seq(
-        field("local", $.identifier),
-        "=",
         field("source", $.identifier),
+        "=",
+        field("local", $.identifier),
       ),
       seq(field("source", $.identifier)),
     ),
